@@ -7,7 +7,7 @@ export default function Nav() {
 
   return (
     <nav className="navbar navbar-expand-lg navbar-light bg-white border-bottom sticky-top">
-      <div className="container">
+      <div className="container-fluid px-3 px-md-4">
         <Link to="/" className="navbar-brand fw-bold d-flex align-items-center gap-2">
           <Logo size={22} />
           <span>CarCare</span>
@@ -24,6 +24,9 @@ export default function Nav() {
             </li>
             <li className="nav-item">
               <NavLink to="/cars/new" className="nav-link">Add Car</NavLink>
+            </li>
+            <li className="nav-item">
+              <NavLink to="/expenses" className="nav-link">Expenses</NavLink>
             </li>
             <li className="nav-item">
               <NavLink to="/forum" className="nav-link">Forum</NavLink>

@@ -1,50 +1,64 @@
-const passport = require('passport');
-const User = require('../models/User');
+const bcrypt = require('bcryptjs');
+const User = require('../models/User'); // проверь путь к модели
 
-exports.register = async (req, res, next) => {
+const publicUser = (u) => ({ _id: u._id, name: u.name, email: u.email });
+
+// controllers/auth.controller.js (register)
+exports.register = async (req, res) => {
   try {
-    const { name, email, password } = req.body;
-    if (!email || !password) return res.status(400).json({ error: 'email and password required' });
+    let { name, email, password } = req.body;
+
+    if (!name || !email || !password) {
+      return res.status(400).json({ message: 'All fields are required' });
+    }
+    email = String(email).trim().toLowerCase();
+    if (password.length < 8) {
+      return res.status(400).json({ message: 'Password must be at least 8 characters' });
+    }
 
     const exists = await User.findOne({ email });
-    if (exists) return res.status(409).json({ error: 'Email already in use' });
+    if (exists) {
+      return res.status(409).json({ message: 'Email is already registered' });
+    }
 
-    const user = await User.create({ name, email, password });
+    // ВАЖНО: НЕ хешируем здесь — доверяем pre('save') из модели
+    const user = await User.create({ name: name.trim(), email, password });
 
-    // автологин после регистрации
     req.login(user, (err) => {
-      if (err) return next(err);
-      const safe = { id: user.id, name: user.name, email: user.email };
-      return res.status(201).json({ user: safe });
+      if (err) {
+        console.error('req.login error:', err);
+        return res.status(500).json({ message: 'Could not create session' });
+      }
+      return res.json({ ok: true, user: publicUser(user) });
     });
   } catch (e) {
-    next(e);
+    if (e.code === 11000) {
+      return res.status(409).json({ message: 'Email is already registered' });
+    }
+    console.error('REGISTER ERROR:', e);
+    return res.status(500).json({ message: 'Registration failed' });
   }
 };
 
-exports.login = (req, res, next) => {
-  passport.authenticate('local', (err, user, info) => {
-    if (err) return next(err);
-    if (!user) return res.status(401).json({ error: info?.message || 'Invalid credentials' });
-    req.login(user, (err2) => {
-      if (err2) return next(err2);
-      const safe = { id: user.id, name: user.name, email: user.email };
-      return res.json({ user: safe });
-    });
-  })(req, res, next);
+
+exports.login = async (req, res, next) => {
+  // твой текущий login через passport-local — оставь как есть
+  next();
 };
 
 exports.me = (req, res) => {
-  if (!req.user) return res.status(401).json({ error: 'Unauthorized' });
-  return res.json({ user: req.user }); // пароль уже снят в deserialize
+  if (!req.user) return res.json({ user: null });
+  res.json({ user: { _id: req.user._id, name: req.user.name, email: req.user.email } });
 };
 
-exports.logout = (req, res, next) => {
-  req.logout((err) => {
-    if (err) return next(err);
+// controllers/auth.controller.js (logout)
+exports.logout = (req, res) => {
+  req.logout(() => {
+    const sid = req.sessionID; // можно не использовать
     req.session.destroy(() => {
       res.clearCookie('cc.sid');
-      return res.json({ ok: true });
+      res.json({ ok: true });
     });
   });
 };
+

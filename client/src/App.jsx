@@ -10,6 +10,9 @@ import Register from "./pages/Register";
 import Dashboard from "./pages/Dashboard";
 import AddCar from "./pages/AddCar";
 import Forum from "./pages/Forum";
+import Expenses from "./pages/Expenses";
+import Topic from "./pages/Topic";
+
 
 export default function App() {
   return (
@@ -17,21 +20,22 @@ export default function App() {
       <div className="d-flex flex-column min-vh-100">
         <BrowserRouter>
           <Nav />
-          <main className="flex-grow-1">
+          <main className="flex-grow-1 w-100">
             <Routes>
               <Route path="/" element={<Home />} />
               <Route path="/login" element={<Login />} />
               <Route path="/register" element={<Register />} />
 
-              {/* защищённые */}
               <Route element={<Protected />}>
                 <Route path="/dashboard" element={<Dashboard />} />
                 <Route path="/cars/new" element={<AddCar />} />
               </Route>
 
-              {/* форум пока открытый */}
+              <Route path="/expenses" element={<Expenses />} />
               <Route path="/forum" element={<Forum />} />
+              <Route path="/forum/:id" element={<Topic />} />
             </Routes>
+
           </main>
           <Footer />
         </BrowserRouter>

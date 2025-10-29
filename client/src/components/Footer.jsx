@@ -1,7 +1,7 @@
 export default function Footer(){
   return (
     <footer className="bg-white border-top mt-auto">
-      <div className="container py-4 d-flex flex-wrap align-items-center gap-3">
+       <div className="container-fluid px-3 px-md-4 py-4 d-flex flex-wrap align-items-center gap-3">
         <div className="me-auto text-secondary">
           &copy; {new Date().getFullYear()} CarCare — car accounting and forum
         </div>

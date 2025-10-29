@@ -1,14 +1,15 @@
+// client/src/pages/Home.jsx
 import { Link } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 
-export default function Home(){
+export default function Home() {
   const { user } = useAuth();
 
   return (
     <>
       {/* HERO */}
       <header className="py-5 bg-white border-bottom">
-        <div className="container">
+        <div className="container-fluid px-3 px-md-4">
           <div className="row align-items-center g-4">
             <div className="col-lg-7">
               <h1 className="display-5 fw-bold mb-3">Welcome to CarCare</h1>
@@ -19,12 +20,8 @@ export default function Home(){
               <div className="d-flex flex-wrap gap-2 mt-3">
                 {user ? (
                   <>
-                    <Link to="/dashboard" className="btn btn-primary">
-                      To the office
-                    </Link>
-                    <Link to="/cars/new" className="btn btn-outline-secondary">
-                      Add car
-                    </Link>
+                    <Link to="/dashboard" className="btn btn-primary">To the office</Link>
+                    <Link to="/cars/new" className="btn btn-outline-secondary">Add car</Link>
                     <Link to="/forum" className="btn btn-warning text-dark">
                       <i className="bi bi-chat-left-text me-1"></i> Forum
                     </Link>
@@ -40,7 +37,7 @@ export default function Home(){
 
             <div className="col-lg-5">
               <div className="section-light card-soft p-4">
-                <h5 className="mb-3">Что умеет CarCare</h5>
+                <h5 className="mb-3">What CarCare can do</h5>
                 <ul className="list-unstyled m-0">
                   <li className="mb-2"><i className="bi bi-check2-circle text-primary me-2"></i>Car garage with photos</li>
                   <li className="mb-2"><i className="bi bi-check2-circle text-primary me-2"></i>Cost accounting and summaries</li>
@@ -53,20 +50,20 @@ export default function Home(){
         </div>
       </header>
 
-      {/* ФИЧИ */}
+      {/* FEATURES */}
       <section className="py-5">
-        <div className="container">
+        <div className="container-fluid px-3 px-md-4">
           <div className="row g-4">
-            <Feature icon="car-front" title="Гараж">
+            <Feature icon="car-front" title="Garage">
               Keep your brand, VIN, mileage, and media all in one place.
             </Feature>
-            <Feature icon="receipt" title="Расходы">
+            <Feature icon="receipt" title="Expenses">
               Services, spare parts, fuel. Summary of costs for the period.
             </Feature>
-            <Feature icon="images" title="Фотоархив">
+            <Feature icon="images" title="Gallery">
               Upload before/after photos, receipts, and damages.
             </Feature>
-            <Feature icon="chat-left-text" title="Форум">
+            <Feature icon="chat-left-text" title="Forum">
               Ask questions and share your experience publicly.
             </Feature>
           </div>
@@ -76,7 +73,7 @@ export default function Home(){
   );
 }
 
-function Feature({ icon, title, children }){
+function Feature({ icon, title, children }) {
   return (
     <div className="col-sm-6 col-lg-3">
       <div className="section-light card-soft h-100 p-4">

@@ -1,84 +1,69 @@
-import { useState } from "react";
-import api from "../api";
+import { useForm } from "react-hook-form";
+import { createCar } from "../api";
 import { useNavigate } from "react-router-dom";
+import { useState } from "react";
 
 export default function AddCar() {
-  const nav = useNavigate();
-  const [form, setForm] = useState({
-    make: "", model: "", year: "", vin: "", mileage: "", nickname: ""
-  });
-  const [file, setFile] = useState(null);
-  const [err, setErr] = useState("");
+  const { register, handleSubmit, formState:{errors,isSubmitting} } = useForm();
+  const navigate = useNavigate();
+  const [error,setError] = useState("");
 
-  const onChange = e => setForm(f => ({...f, [e.target.name]: e.target.value}));
-
-  const onSubmit = async (e) => {
-    e.preventDefault();
-    setErr("");
+  const onSubmit = async (data) => {
+    setError("");
     try {
-      // 1) создаём машину
-      const res = await api.post("/cars", {
-        make: form.make,
-        model: form.model,
-        year: Number(form.year),
-        vin: form.vin,
-        mileage: Number(form.mileage),
-        nickname: form.nickname
+      await createCar({
+        make: data.make,
+        model: data.model,
+        year: Number(data.year),
+        vin: data.vin || "",
+        mileage: Number(data.mileage || 0),
+        nickname: data.nickname || "",
       });
-      const car = res.data.car;
-
-      // 2) если выбрано фото — грузим
-      if (file) {
-        const fd = new FormData();
-        fd.append("file", file);
-        await api.post(`/upload/car-photo/${car._id}`, fd, {
-          headers: { "Content-Type": "multipart/form-data" }
-        });
-      }
-
-      nav("/dashboard");
+      navigate("/dashboard");
     } catch (e) {
-      setErr("Не удалось добавить машину");
+      setError("Couldn't create car");
+      console.error(e);
     }
   };
 
   return (
-    <div className="container py-4" style={{maxWidth: 680}}>
-      <h2 className="mb-3">Добавить машину</h2>
-      {err && <div className="alert alert-danger">{err}</div>}
+    <div className="container-fluid px-3 px-md-4 py-4">
+      <h2 className="mb-3">Add Car</h2>
+      {error && <div className="alert alert-danger">{error}</div>}
 
-      <form onSubmit={onSubmit} className="vstack gap-3">
-        <div className="row g-2">
-          <div className="col-sm">
-            <input className="form-control" placeholder="Make" name="make" value={form.make} onChange={onChange}/>
+      <form onSubmit={handleSubmit(onSubmit)} style={{maxWidth: 520}}>
+        <div className="row g-3">
+          <div className="col-sm-6">
+            <label className="form-label">Make</label>
+            <input className="form-control" {...register("make",{required:true})}/>
+            {errors.make && <div className="text-danger small">Required</div>}
           </div>
-          <div className="col-sm">
-            <input className="form-control" placeholder="Model" name="model" value={form.model} onChange={onChange}/>
+          <div className="col-sm-6">
+            <label className="form-label">Model</label>
+            <input className="form-control" {...register("model",{required:true})}/>
+            {errors.model && <div className="text-danger small">Required</div>}
           </div>
-          <div className="col-sm-3">
-            <input className="form-control" placeholder="Year" name="year" value={form.year} onChange={onChange}/>
+          <div className="col-sm-4">
+            <label className="form-label">Year</label>
+            <input type="number" className="form-control" {...register("year",{required:true})}/>
+          </div>
+          <div className="col-sm-8">
+            <label className="form-label">VIN</label>
+            <input className="form-control" {...register("vin")}/>
+          </div>
+          <div className="col-sm-6">
+            <label className="form-label">Mileage</label>
+            <input type="number" className="form-control" {...register("mileage")}/>
+          </div>
+          <div className="col-sm-6">
+            <label className="form-label">Nickname</label>
+            <input className="form-control" {...register("nickname")}/>
           </div>
         </div>
 
-        <div className="row g-2">
-          <div className="col-sm">
-            <input className="form-control" placeholder="VIN" name="vin" value={form.vin} onChange={onChange}/>
-          </div>
-          <div className="col-sm">
-            <input className="form-control" placeholder="Mileage" name="mileage" value={form.mileage} onChange={onChange}/>
-          </div>
-          <div className="col-sm">
-            <input className="form-control" placeholder="Nickname" name="nickname" value={form.nickname} onChange={onChange}/>
-          </div>
-        </div>
-
-        <div>
-          <input className="form-control" type="file" accept="image/*"
-                 onChange={e=>setFile(e.target.files?.[0] || null)} />
-          <div className="form-text">Можно добавить 1 фото при создании (опционально).</div>
-        </div>
-
-        <button className="btn btn-primary">Сохранить</button>
+        <button disabled={isSubmitting} className="btn btn-primary mt-3">
+          {isSubmitting ? "Saving..." : "Create"}
+        </button>
       </form>
     </div>
   );

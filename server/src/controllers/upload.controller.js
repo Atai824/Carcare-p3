@@ -98,7 +98,7 @@ exports.removeCarPhoto = async (req, res, next) => {
     await car.save();
 
     // попробуем удалить файл с диска
-    const filePath = path.join(__dirname, '..', '..', url);
+    const filePath = path.join(__dirname, '..', '..', 'uploads', 'photos', filename);
     fs.promises.unlink(filePath).catch(() => {});
     res.json({ ok: true });
   } catch (e) { next(e); }

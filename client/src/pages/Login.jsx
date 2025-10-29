@@ -16,12 +16,12 @@ export default function Login() {
       await login(email, password);
       nav("/dashboard");
     } catch (e) {
-      setErr("Ошибка входа");
+      setErr("Login error");
     }
   };
 
   return (
-    <div className="container py-4">
+    <div className="container-fluid px-3 px-md-4 py-4">
       <h2 className="mb-3">Login</h2>
       {err && <div className="alert alert-danger">{err}</div>}
       <form onSubmit={onSubmit} className="vstack gap-3" style={{maxWidth: 480}}>
@@ -30,7 +30,7 @@ export default function Login() {
         <input className="form-control" type="password" placeholder="Password"
                value={password} onChange={e=>setPassword(e.target.value)} />
         <button className="btn btn-primary">Sign in</button>
-        <div className="text-secondary">Нет аккаунта? <Link to="/register">Register</Link></div>
+        <div className="text-secondary">Don't have an account? <Link to="/register">Register</Link></div>
       </form>
     </div>
   );

@@ -17,12 +17,12 @@ export default function Register() {
       await doRegister(name, email, password);
       nav("/dashboard");
     } catch {
-      setErr("Ошибка регистрации");
+      setErr("Registration error");
     }
   };
 
   return (
-    <div className="container py-4">
+    <div className="container-fluid px-3 px-md-4 py-4">
       <h2 className="mb-3">Register</h2>
       {err && <div className="alert alert-danger">{err}</div>}
       <form onSubmit={onSubmit} className="vstack gap-3" style={{maxWidth: 520}}>
