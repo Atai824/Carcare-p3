@@ -60,6 +60,7 @@ export default function Dashboard() {
                     VIN: {car.vin || "—"} · Mileage: {car.mileage ?? 0}
                   </p>
 
+
                   <div className="d-flex flex-wrap gap-2">
                     <label className="btn btn-outline-secondary btn-sm mb-0">
                       <i className="bi bi-upload me-1"></i> Photo

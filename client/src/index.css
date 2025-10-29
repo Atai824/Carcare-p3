@@ -24,11 +24,18 @@ a:hover {
 
 body {
   margin: 0;
-  display: flex;
-  place-items: center;
   min-width: 320px;
   min-height: 100vh;
+
+  /* важно: никаких flex/center тут! */
+  display: block;
+  width: 100%;
 }
+html, body, #root { 
+  height: 100%; 
+}
+
+
 
 h1 {
   font-size: 3.2em;
@@ -107,3 +114,34 @@ body {
   min-height: 70vh;
 }
 
+/* Узкая активная линия под ссылкой (и в бургере тоже) */
+.navbar .cc-link{
+  display:inline-block;        /* ломаем bootstrap block/100% */
+  position:relative;
+  padding:.5rem .25rem;
+}
+.navbar .cc-link::after{
+  content:"";
+  position:absolute;
+  left:0;
+  right:0;                     /* ширина = ширина текста */
+  bottom:-2px;
+  height:2px;
+  background:transparent;
+  transform:scaleX(0);
+  transform-origin:left;
+  transition:transform .15s ease, background-color .15s ease;
+}
+.navbar .cc-link:hover::after{
+  background:var(--bs-primary);
+  transform:scaleX(1);
+}
+.navbar .cc-link.active::after{
+  background:var(--bs-primary);
+  transform:scaleX(1);
+}
+
+/* чуть плотнее отступы пунктов меню */
+@media (min-width: 992px){
+  .navbar .navbar-nav .cc-link{ margin-right:.75rem; }
+}

@@ -5,11 +5,14 @@ import Logo from "./Logo";
 export default function Nav() {
   const { user, logout } = useAuth();
 
+  const linkClass = ({ isActive }) =>
+    "nav-link cc-link" + (isActive ? " active" : "");
+
   return (
     <nav className="navbar navbar-expand-lg navbar-light bg-white border-bottom sticky-top">
       <div className="container-fluid px-3 px-md-4">
         <Link to="/" className="navbar-brand fw-bold d-flex align-items-center gap-2">
-          <Logo size={22} />
+          <Logo size={56} />
           <span>CarCare</span>
         </Link>
 
@@ -20,16 +23,16 @@ export default function Nav() {
         <div className="collapse navbar-collapse" id="mainnav">
           <ul className="navbar-nav me-auto mb-2 mb-lg-0">
             <li className="nav-item">
-              <NavLink to="/dashboard" className="nav-link">Dashboard</NavLink>
+              <NavLink to="/dashboard" className={linkClass}>My Garage</NavLink>
             </li>
             <li className="nav-item">
-              <NavLink to="/cars/new" className="nav-link">Add Car</NavLink>
+              <NavLink to="/cars/new" className={linkClass}>Add Car</NavLink>
             </li>
             <li className="nav-item">
-              <NavLink to="/expenses" className="nav-link">Expenses</NavLink>
+              <NavLink to="/expenses" className={linkClass}>Expenses</NavLink>
             </li>
             <li className="nav-item">
-              <NavLink to="/forum" className="nav-link">Forum</NavLink>
+              <NavLink to="/forum" className={linkClass}>Forum</NavLink>
             </li>
           </ul>
 
