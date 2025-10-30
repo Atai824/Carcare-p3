@@ -31,12 +31,12 @@ const allowedOrigins = (CLIENT_ORIGIN || '')
   'https://carcare-p3.onrender.com'
 ].forEach(o => { if (!allowedOrigins.includes(o)) allowedOrigins.push(o); });
 
-app.use(cors({
-  origin: function (origin, cb) {
-    // Разрешаем Postman/curl без Origin и наши домены
-    if (!origin || allowedOrigins.includes(origin)) return cb(null, true);
-    return cb(new Error(`CORS blocked: ${origin}`), false);
-  },
+app.use(
+  cors({
+    origin: [
+      'https://carcare-p3.vercel.app',
+      'https://carcare-p3.onrender.com'
+    ],
   credentials: true,
 }));
 
