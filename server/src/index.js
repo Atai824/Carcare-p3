@@ -1,7 +1,5 @@
 // server/src/index.js
 const path = require('path');
-
-// Подтягиваем переменные из server/.env (а не из корня репо)
 require('dotenv').config({ path: path.join(__dirname, '..', '.env') });
 
 const express = require('express');
@@ -11,105 +9,86 @@ const cookieParser = require('cookie-parser');
 const session = require('express-session');
 const MongoStore = require('connect-mongo');
 const passport = require('passport');
-
 require('./config/passport');
+
 const { connectDB } = require('./config/db');
 const { PORT, CLIENT_ORIGIN, SESSION_SECRET, IN_PROD, MONGO_URI } = require('./config/env');
 
 const app = express();
 
-/* ----------------------------- PROD за прокси ----------------------------- */
-if (IN_PROD) {
-  // Нужно для корректной установки secure-кук за HTTPS-прокси (Render)
-  app.set('trust proxy', 1);
-}
+// В проде (Render за прокси) — доверяем прокси для корректной установки secure-кук
+if (IN_PROD) app.set('trust proxy', 1);
 
-/* --------------------------------- CORS ---------------------------------- */
-// Поддержка нескольких доменов в CLIENT_ORIGIN (через запятую)
-const allowedOrigins = String(CLIENT_ORIGIN || '')
+// Преобразуем CLIENT_ORIGIN в массив (поддержка списка через запятую)
+const allowedOrigins = (CLIENT_ORIGIN || '')
   .split(',')
-  .map((o) => o.trim())
+  .map(s => s.trim())
   .filter(Boolean);
 
-app.use(
-  cors({
-    origin(origin, callback) {
-      // Разрешаем запросы без Origin (напр. Postman, SSR, health)
-      if (!origin) return callback(null, true);
+// На всякий случай добавим Vercel/Render домены, если их нет
+[
+  'https://carcare-p3.vercel.app',
+  'https://carcare-p3.onrender.com'
+].forEach(o => { if (!allowedOrigins.includes(o)) allowedOrigins.push(o); });
 
-      if (allowedOrigins.includes(origin)) {
-        return callback(null, true);
-      }
-      return callback(new Error('Not allowed by CORS'));
-    },
-    credentials: true,
-  })
-);
-
-// Корректная обработка preflight-запросов
-app.options('*', cors({
-  origin: (origin, cb) => cb(null, !origin || allowedOrigins.includes(origin)),
+app.use(cors({
+  origin: function (origin, cb) {
+    // Разрешаем Postman/curl без Origin и наши домены
+    if (!origin || allowedOrigins.includes(origin)) return cb(null, true);
+    return cb(new Error(`CORS blocked: ${origin}`), false);
+  },
   credentials: true,
 }));
 
-/* ----------------------------- Базовые миддлвары ----------------------------- */
 app.use(morgan('dev'));
 app.use(express.json());
 app.use(cookieParser());
 
-/* --------------------- Раздача загруженных файлов --------------------- */
-// ВАЖНО: до роутов
+// Статика для /uploads
 app.use('/uploads', express.static(path.join(__dirname, '..', 'uploads')));
 
-/* -------------------------------- Сессии -------------------------------- */
+// Сессия
 app.use(
   session({
     name: 'cc.sid',
     secret: SESSION_SECRET,
     resave: false,
     saveUninitialized: false,
-    rolling: true, // продлеваем cookie при каждом запросе
+    rolling: true,
     cookie: {
       httpOnly: true,
-      sameSite: IN_PROD ? 'none' : 'lax', // для межсайтовых запросов (Vercel <-> Render)
-      secure: IN_PROD,                    // cookie только по HTTPS в проде
-      maxAge: 1000 * 60 * 60 * 24 * 7,    // 7 дней
+      sameSite: IN_PROD ? 'none' : 'lax', // важно для разных доменов
+      secure: IN_PROD,                    // в проде обязательно HTTPS
+      maxAge: 1000 * 60 * 60 * 24 * 7,
     },
     store: MongoStore.create({
       mongoUrl: MONGO_URI,
       collectionName: 'sessions',
-      // ttl берётся из cookie.maxAge
     }),
   })
 );
 
-/* -------------------------------- Passport ------------------------------- */
 app.use(passport.initialize());
 app.use(passport.session());
 
-/* --------------------------------- Роуты --------------------------------- */
+// Роуты
 app.use('/health', require('./routes/health.routes'));
-app.get('/', (_req, res) => res.send('CarCare API is running'));
+app.get('/', (_req, res) => res.send('CarCare API'));
 app.use('/auth', require('./routes/auth.routes'));
 app.use('/cars', require('./routes/car.routes'));
 app.use('/expenses', require('./routes/expense.routes'));
 app.use('/upload', require('./routes/upload.routes'));
 app.use('/forum', require('./routes/forum'));
 
-/* ---------------------- Глобальный обработчик ошибок ---------------------- */
+// Глобальный обработчик ошибок
 app.use((err, _req, res, _next) => {
   console.error('UNCAUGHT ERROR:', err);
-  // Не палим подробности в проде
   res.status(500).json({ message: 'Server error' });
 });
 
-/* ---------------------- Старт после подключения к БД ---------------------- */
 connectDB()
   .then(() => {
-    app.listen(PORT, () => {
-      console.log(`✅ MongoDB connected`);
-      console.log(`🚀 API on http://localhost:${PORT}`);
-    });
+    app.listen(PORT, () => console.log(`🚀 API running on http://localhost:${PORT}`));
   })
   .catch((err) => {
     console.error('Mongo connection error:', err);
