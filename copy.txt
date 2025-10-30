@@ -1,1 +1,4 @@
 car id: 68fd8d7d57aa7432d90b85ed
+
+username of cloud: atoktosunov8207_db_user
+password for cloud: 1eGp7vyGQlx5YRMM
