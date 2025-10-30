@@ -7,9 +7,8 @@ import axios from "axios";
  * - In dev, we fall back to http://localhost:4000
  */
 const PROD_API = import.meta.env.VITE_API_URL || import.meta.env.VITE_API; // support either name
-const BASE = import.meta.env.DEV
-  ? (import.meta.env.VITE_API_URL_DEV || "http://localhost:4000")
-  : PROD_API;
+const BASE = import.meta.env.VITE_API_URL || "https://carcare-p3.onrender.com";
+
 
 if (!BASE) {
   // Helpful warning if env is missing in Vercel
@@ -20,7 +19,7 @@ if (!BASE) {
 }
 
 const api = axios.create({
-  baseURL: String(BASE).replace(/\/+$/, ""), // trim trailing slash
+  baseURL: BASE,
   withCredentials: true,
   headers: { "Content-Type": "application/json" },
 });
