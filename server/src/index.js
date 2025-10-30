@@ -57,8 +57,8 @@ app.use(
     rolling: true,
     cookie: {
       httpOnly: true,
-      sameSite: IN_PROD ? 'none' : 'lax', // важно для разных доменов
-      secure: IN_PROD,                    // в проде обязательно HTTPS
+      sameSite: 'none',// важно для разных доменов
+      secure: true,                    // в проде обязательно HTTPS
       maxAge: 1000 * 60 * 60 * 24 * 7,
     },
     store: MongoStore.create({
