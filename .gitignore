@@ -1,0 +1,12 @@
+# ENV-файлы (не коммитим секреты)
+.env
+.env.*
+server/.env
+server/.env.*
+client/.env
+client/.env.*
+
+# Сохраняем только примеры
+!.env.example
+!server/.env.example
+!client/.env.example
